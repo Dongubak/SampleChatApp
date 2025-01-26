@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
 
-const socket = io("http://192.168.0.50:5001");
+const socket = io(process.env.REACT_APP_BACKEND_URL || "http://chat-backend:5001", {
+  transports: ["websocket"],  // polling을 방지하고 websocket 강제 설정
+  reconnectionAttempts: 5,    // 재연결 시도 횟수 설정
+  timeout: 20000              // 연결 타임아웃 설정
+});
 const username = "User_" + Math.floor(Math.random() * 1000);
 
 function ChatRoom() {

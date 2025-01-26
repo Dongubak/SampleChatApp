@@ -8,9 +8,12 @@ const server = http.createServer(app);
 
 const io = socketIo(server, {
    cors: {
-     origin: "*",  // 모든 도메인 허용
-     methods: ["GET", "POST"],
+       origin: "*",  // 또는 프론트엔드 URL을 명시 (예: "http://localhost:3000")
+       methods: ["GET", "POST"],
+       credentials: true
    },
+   transports: ["websocket", "polling"],  // 트랜스포트 옵션 명시
+   allowEIO3: true  // EIO 버전 호환 옵션
 });
 
 // 프론트엔드 정적 파일 제공 (React 빌드된 파일 경로 수정 가능)
@@ -74,6 +77,7 @@ io.on("connection", (socket) => {
 });
 
 // 서버 실행 (모든 네트워크 인터페이스에서 수신)
-server.listen(5001, '0.0.0.0', () => {
-   console.log("Server running on http://0.0.0.0:5001");
+const port = process.env.PORT || 5001;
+server.listen(port, '0.0.0.0', () => {
+   console.log(`Server running on http://0.0.0.0:${port}`);
 });
