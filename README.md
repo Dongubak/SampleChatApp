@@ -291,5 +291,76 @@ socket.on("privateMessage", ({ recipientUsername, message }) => {
 
 > 사용자가 Message이벤트를 보내면 수신 유저의 유저네임에 메세지를 전송한다.
 
-## 2025.01.25 도커 빌드는 성공했지만 프론트코드에서 소켓을 생성하지 못하는 것 같음
-뭐가 문제냐
+## 2025.01.25 도커 빌드는 성공했지만 (유기)프론트코드에서 소켓을 생성하지 못하는 것 같음
+
+## 데이터베이스 테이블 관계도
+![alt text](image.png)
+
+## 데이터베이스 모델 정의
+### USER 모델
+```javascript
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+
+const User = sequelize.define('User', {
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  username: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    unique: true,
+  },
+  email: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    unique: true,
+  },
+  password_hash: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  profile_image: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  created_at: {
+    type: DataTypes.DATE,  // TIMESTAMP 대신 DATE 사용
+    defaultValue: DataTypes.NOW,  // 기본값 설정
+  },
+}, {
+  timestamps: false,
+  tableName: 'users',
+});
+
+module.exports = User;
+```
+
+> created_at 필드 값의 타입이 DateTypes.DATE임에 유의해야한다.
+
+### seeder
+초기 데이터베이스 연결 확인과 더미 테스트 데이터 삽입 부분을 담당한다.
+
+```javascript
+const { User, ChatRoom, Message, sequelize } = require('../models');
+
+(async () => {
+  await sequelize.sync({ force: true });  // 기존 테이블 삭제 후 재생성
+  console.log("테이블 초기화 완료.");
+
+  const qwer = await User.create({ username: 'qwer', email: 'qwer@example.com', password_hash: 'hashed_password_qwer' });
+  const asdf = await User.create({ username: 'asdf', email: 'asdf@example.com', password_hash: 'hashed_password_asdf' });
+
+  const chatroom = await ChatRoom.create({ name: 'qwer with asdf', is_group: false });
+
+  await Message.create({ chatroom_id: chatroom.id, sender_id: qwer.id, message: 'Hello asdf!', message_type: 'text' });
+  await Message.create({ chatroom_id: chatroom.id, sender_id: asdf.id, message: 'Hi qwer!', message_type: 'text' });
+
+  console.log("샘플 데이터 삽입 완료.");
+  process.exit();
+})();
+```
+
+> 샘플 데이터를 삽입하면서 데이터베이스와의 연결을 확인하며 모델의 정상적인 정의 여부도 확인할 수 있다. 즉 전반적인 디비 연결부분을 테스트 할 수 있음
