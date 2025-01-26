@@ -290,3 +290,6 @@ socket.on("privateMessage", ({ recipientUsername, message }) => {
 ```
 
 > 사용자가 Message이벤트를 보내면 수신 유저의 유저네임에 메세지를 전송한다.
+
+## 2025.01.25 도커 빌드는 성공했지만 프론트코드에서 소켓을 생성하지 못하는 것 같음
+뭐가 문제냐
