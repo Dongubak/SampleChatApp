@@ -13,7 +13,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Ignore build files
+# Ignore build file
 /build
 
 # Ignore miscellaneous files
